@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Diario del Benessere</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #fff5f0 50%, #fef3e8 100%);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            position: relative;
+        }
+
+        .custom-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 8px 32px rgba(255, 182, 193, 0.2);
+        }
+
+        .header h1 {
+            color: #d4758f;
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        .header .date {
+            color: #b8869e;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 8px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: #b8869e;
+            border-radius: 15px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #ffb6c1, #ffc9d4);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(255, 182, 193, 0.15);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            background: linear-gradient(135deg, #fff8fb, #fffaf8);
+            border-radius: 15px;
+            margin-bottom: 12px;
+            border: 2px solid #ffe4ec;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 182, 193, 0.2);
+        }
+
+        .activity-icon {
+            font-size: 28px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-name {
+            font-weight: 600;
+            color: #d4758f;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .activity-type {
+            font-size: 12px;
+            color: #b8869e;
+        }
+
+        input[type="checkbox"] {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            accent-color: #ffb6c1;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ffe4ec;
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            color: #7d5a6c;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #ffb6c1;
+            box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffb6c1, #ffc9d4);
+            color: white;
+            box-shadow: 0 6px 20px rgba(255, 182, 193, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 182, 193, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 228, 236, 0.6);
+            color: #d4758f;
+            border: 2px solid #ffe4ec;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 228, 236, 0.9);
+        }
+
+        .btn-delete {
+            padding: 8px 15px;
+            background: rgba(255, 182, 193, 0.2);
+            color: #d4758f;
+            font-size: 14px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #b8869e;
+            position: relative;
+            border: 2px solid #ffe4ec;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:not(.header):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 182, 193, 0.3);
+            border-color: #ffb6c1;
+        }
+
+        .calendar-day.header {
+            background: transparent;
+            border: none;
+            font-size: 12px;
+            color: #d4758f;
+        }
+
+        .calendar-day.has-entries {
+            background: linear-gradient(135deg, #ffb6c1, #ffc9d4);
+            color: white;
+            border-color: #ffb6c1;
+        }
+
+        .calendar-day.today {
+            border-color: #d4758f;
+            border-width: 3px;
+        }
+
+        .activity-dots {
+            display: flex;
+            gap: 3px;
+            margin-top: 4px;
+        }
+
+        .activity-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 24px;
+            color: #d4758f;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d4758f;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ffe4ec;
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            color: #7d5a6c;
+            cursor: pointer;
+        }
+
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .manage-activity-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #fff8fb;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 2px solid #ffe4ec;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            background: linear-gradient(135deg, #fff8fb, #fffaf8);
+            border-radius: 15px;
+            border: 2px solid #ffe4ec;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #d4758f;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #b8869e;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #b8869e;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <img id="customBackgroundImage" class="custom-background" style="display: none;">
+    
+    <svg class="background-pattern" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <pattern id="flower-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="3" fill="#ffb6c1"/>
+                <circle cx="50" cy="50" r="2" fill="#ffc9d4"/>
+                <circle cx="80" cy="30" r="2.5" fill="#ffe4ec"/>
+                <path d="M 10 60 Q 15 55 20 60 Q 25 65 30 60" stroke="#ffb6c1" fill="none" stroke-width="1.5"/>
+                <path d="M 60 10 Q 65 5 70 10 Q 75 15 80 10" stroke="#ffc9d4" fill="none" stroke-width="1.5"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#flower-pattern)"/>
+    </svg>
+
+    <div class="container">
+        <div class="header">
+            <h1>✨ Diario del Benessere ✨</h1>
+            <div class="date" id="currentDate"></div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('today')">Oggi</button>
+            <button class="tab" onclick="switchTab('calendar')">Calendario</button>
+            <button class="tab" onclick="switchTab('stats')">Statistiche</button>
+            <button class="tab" onclick="switchTab('settings')">Gestione</button>
+        </div>
+
+        <!-- Today Tab -->
+        <div id="today" class="tab-content active">
+            <div class="card">
+                <div id="activitiesList"></div>
+                <button class="btn btn-primary" onclick="saveToday()">💾 Salva Giornata</button>
+            </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendar" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <button class="btn-secondary" style="width: auto; padding: 10px 20px;" onclick="changeMonth(-1)">←</button>
+                    <h2 style="color: #d4758f; font-size: 20px;" id="calendarMonth"></h2>
+                    <button class="btn-secondary" style="width: auto; padding: 10px 20px;" onclick="changeMonth(1)">→</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="stats" class="tab-content">
+            <div class="card">
+                <h2 style="color: #d4758f; margin-bottom: 20px; font-size: 22px;">📊 Andamento Peso</h2>
+                <div class="chart-container">
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h2 style="color: #d4758f; margin-bottom: 20px; font-size: 22px;">📈 Statistiche Generali</h2>
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h2 style="color: #d4758f; margin-bottom: 20px; font-size: 22px;">💾 Backup e Ripristino Dati</h2>
+                <button class="btn btn-primary" onclick="exportData()">
+                    📥 Esporta Tutti i Dati
+                </button>
+                <div style="margin-top: 10px;">
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()">
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
+                        📤 Importa Dati da Backup
+                    </button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="btn btn-secondary" onclick="exportToCSV()">
+                        📊 Esporta in Excel/CSV
+                    </button>
+                </div>
+                <div style="background: #fff8fb; padding: 15px; border-radius: 12px; border: 2px solid #ffe4ec; margin-top: 15px;">
+                    <p style="color: #b8869e; font-size: 13px; margin: 0;">
+                        💡 <strong>Suggerimento:</strong> Esporta regolarmente i dati per fare backup. Il file JSON può essere reimportato per ripristinare tutto. Il CSV è perfetto per analisi in Excel.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 style="color: #d4758f; margin-bottom: 20px; font-size: 22px;">🎨 Immagine di Sfondo</h2>
+                <div style="margin-bottom: 15px;">
+                    <input type="file" id="backgroundUpload" accept="image/*" style="display: none;" onchange="uploadBackground()">
+                    <button class="btn btn-primary" onclick="document.getElementById('backgroundUpload').click()">
+                        📷 Carica Immagine
+                    </button>
+                </div>
+                <div id="backgroundPreview" style="display: none; margin-bottom: 15px;">
+                    <p style="color: #b8869e; font-size: 14px; margin-bottom: 10px;">Immagine attuale:</p>
+                    <img id="previewImage" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 15px; border: 2px solid #ffe4ec;">
+                    <button class="btn btn-secondary" onclick="removeBackground()" style="margin-top: 10px;">
+                        🗑️ Rimuovi Immagine
+                    </button>
+                </div>
+                <div style="background: #fff8fb; padding: 15px; border-radius: 12px; border: 2px solid #ffe4ec; margin-bottom: 20px;">
+                    <p style="color: #b8869e; font-size: 13px; margin: 0;">
+                        💡 <strong>Suggerimento:</strong> Scegli un'immagine delicata per mantenere la leggibilità del testo.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 style="color: #d4758f; margin-bottom: 20px; font-size: 22px;">⚙️ Gestione Attività</h2>
+                <button class="btn btn-primary" onclick="openAddActivityModal()">➕ Aggiungi Nuova Attività</button>
+                <div class="activity-list" id="manageActivitiesList" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Activity Modal -->
+    <div id="addActivityModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header">Nuova Attività</h2>
+            <div class="form-group">
+                <label>Nome Attività</label>
+                <input type="text" id="activityName" placeholder="es. Yoga, Meditazione...">
+            </div>
+            <div class="form-group">
+                <label>Icona (emoji)</label>
+                <input type="text" id="activityIcon" placeholder="es. 🧘‍♀️, 🏃‍♀️, 💆‍♀️" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label>Tipo di Tracciamento</label>
+                <select id="activityType">
+                    <option value="checkbox">Spunta (Fatto/Non Fatto)</option>
+                    <option value="number">Numero (es. kg, minuti)</option>
+                    <option value="text">Testo Libero</option>
+                </select>
+            </div>
+            <div class="form-group" id="unitGroup" style="display: none;">
+                <label>Unità di Misura</label>
+                <input type="text" id="activityUnit" placeholder="es. kg, minuti, km">
+            </div>
+            <div class="form-group">
+                <label>Colore</label>
+                <select id="activityColor">
+                    <option value="#ffb6c1">Rosa</option>
+                    <option value="#ffc9d4">Rosa Chiaro</option>
+                    <option value="#e6b3cc">Malva</option>
+                    <option value="#d4a5c4">Lilla</option>
+                    <option value="#c9b3d4">Lavanda</option>
+                    <option value="#b8d4e6">Azzurro</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="addActivity()">Aggiungi</button>
+            <button class="btn btn-secondary" onclick="closeAddActivityModal()">Annulla</button>
+        </div>
+    </div>
+
+    <!-- Day Editor Modal -->
+    <div id="dayEditorModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-header" id="dayEditorTitle">Modifica Giorno</h2>
+            <div id="dayEditorActivities"></div>
+            <button class="btn btn-primary" onclick="saveDayEditor()">💾 Salva</button>
+            <button class="btn btn-secondary" onclick="closeDayEditor()">Annulla</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data structure
+        let activities = [];
+        let entries = {};
+        let currentMonth = new Date();
+
+        // Load data from storage
+        async function loadData() {
+            try {
+                const activitiesData = localStorage.getItem('wellness_activities');
+                const entriesData = localStorage.getItem('wellness_entries');
+                const backgroundData = localStorage.getItem('wellness_background');
+                
+                if (activitiesData) {
+                    activities = JSON.parse(activitiesData);
+                } else {
+                    // Default activities
+                    activities = [
+                        { id: 1, name: 'Tapis Roulant', icon: '🏃‍♀️', type: 'checkbox', color: '#ffb6c1' },
+                        { id: 2, name: 'Trattamento Viso', icon: '💆‍♀️', type: 'checkbox', color: '#ffc9d4' },
+                        { id: 3, name: 'Peso', icon: '⚖️', type: 'number', unit: 'kg', color: '#e6b3cc' },
+                        { id: 4, name: 'Diario Libero', icon: '📔', type: 'text', color: '#d4a5c4' }
+                    ];
+                }
+                
+                if (entriesData) {
+                    entries = JSON.parse(entriesData);
+                }
+                
+                if (backgroundData) {
+                    const bgImage = document.getElementById('customBackgroundImage');
+                    bgImage.src = backgroundData;
+                    bgImage.style.display = 'block';
+                    document.getElementById('backgroundPreview').style.display = 'block';
+                    document.getElementById('previewImage').src = backgroundData;
+                }
+            } catch (error) {
+                console.log('Primo avvio, inizializzazione dati di default');
+                activities = [
+                    { id: 1, name: 'Tapis Roulant', icon: '🏃‍♀️', type: 'checkbox', color: '#ffb6c1' },
+                    { id: 2, name: 'Trattamento Viso', icon: '💆‍♀️', type: 'checkbox', color: '#ffc9d4' },
+                    { id: 3, name: 'Peso', icon: '⚖️', type: 'number', unit: 'kg', color: '#e6b3cc' },
+                    { id: 4, name: 'Diario Libero', icon: '📔', type: 'text', color: '#d4a5c4' }
+                ];
+                entries = {};
+            }
+        }
+
+        // Upload background image
+        function uploadBackground() {
+            const file = document.getElementById('backgroundUpload').files[0];
+            if (!file) return;
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('L\'immagine è troppo grande. Massimo 5MB.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imageData = e.target.result;
+                    localStorage.setItem('wellness_background', imageData);
+                    
+                    const bgImage = document.getElementById('customBackgroundImage');
+                    bgImage.src = imageData;
+                    bgImage.style.display = 'block';
+                    
+                    document.getElementById('backgroundPreview').style.display = 'block';
+                    document.getElementById('previewImage').src = imageData;
+                    
+                    alert('✨ Immagine di sfondo caricata!');
+                } catch (error) {
+                    console.error('Errore caricamento:', error);
+                    alert('Errore nel caricamento dell\'immagine. Prova con un\'immagine più piccola.');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove background image
+        function removeBackground() {
+            if (!confirm('Rimuovere l\'immagine di sfondo?')) return;
+            
+            try {
+                localStorage.removeItem('wellness_background');
+                
+                const bgImage = document.getElementById('customBackgroundImage');
+                bgImage.style.display = 'none';
+                bgImage.src = '';
+                
+                document.getElementById('backgroundPreview').style.display = 'none';
+                document.getElementById('previewImage').src = '';
+                
+                alert('✨ Immagine di sfondo rimossa!');
+            } catch (error) {
+                console.error('Errore rimozione:', error);
+            }
+        }
+
+        // Export all data as JSON
+        function exportData() {
+            try {
+                const backgroundData = localStorage.getItem('wellness_background');
+                
+                const exportObject = {
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                    activities: activities,
+                    entries: entries,
+                    background: backgroundData || null
+                };
+                
+                const dataStr = JSON.stringify(exportObject, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `diario-benessere-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                alert('✨ Dati esportati con successo!');
+            } catch (error) {
+                console.error('Errore export:', error);
+                alert('Errore durante l\'esportazione dei dati');
+            }
+        }
+
+        // Import data from JSON
+        function importData() {
+            const file = document.getElementById('importFile').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importObject = JSON.parse(e.target.result);
+                    
+                    if (!importObject.activities || !importObject.entries) {
+                        alert('File non valido. Assicurati di importare un file di backup corretto.');
+                        return;
+                    }
+                    
+                    if (!confirm('ATTENZIONE: Questa operazione sovrascriverà tutti i dati attuali. Sei sicura di voler continuare?')) {
+                        return;
+                    }
+                    
+                    // Import activities and entries
+                    activities = importObject.activities;
+                    entries = importObject.entries;
+                    
+                    // Save to storage
+                    localStorage.setItem('wellness_activities', JSON.stringify(activities));
+                    localStorage.setItem('wellness_entries', JSON.stringify(entries));
+                    
+                    // Import background if present
+                    if (importObject.background) {
+                        localStorage.setItem('wellness_background', importObject.background);
+                        const bgImage = document.getElementById('customBackgroundImage');
+                        bgImage.src = importObject.background;
+                        bgImage.style.display = 'block';
+                        document.getElementById('backgroundPreview').style.display = 'block';
+                        document.getElementById('previewImage').src = importObject.background;
+                    }
+                    
+                    alert('✨ Dati importati con successo! La pagina verrà ricaricata.');
+                    location.reload();
+                } catch (error) {
+                    console.error('Errore import:', error);
+                    alert('Errore durante l\'importazione. Verifica che il file sia corretto.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Export to CSV for Excel
+        function exportToCSV() {
+            if (Object.keys(entries).length === 0) {
+                alert('Nessun dato da esportare');
+                return;
+            }
+            
+            // Create CSV header
+            let csv = 'Data,' + activities.map(a => a.name).join(',') + '\n';
+            
+            // Sort dates
+            const sortedDates = Object.keys(entries).sort();
+            
+            // Add rows
+            sortedDates.forEach(dateKey => {
+                const row = [dateKey];
+                const dayEntries = entries[dateKey];
+                
+                activities.forEach(activity => {
+                    const value = dayEntries[activity.id];
+                    if (activity.type === 'checkbox') {
+                        row.push(value ? 'Sì' : 'No');
+                    } else if (value === '' || value === undefined || value === null) {
+                        row.push('');
+                    } else if (activity.type === 'text') {
+                        // Escape commas and quotes in text
+                        const escapedValue = String(value).replace(/"/g, '""');
+                        row.push(`"${escapedValue}"`);
+                    } else {
+                        row.push(value);
+                    }
+                });
+                
+                csv += row.join(',') + '\n';
+            });
+            
+            // Download CSV
+            const csvBlob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(csvBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `diario-benessere-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert('✨ Dati esportati in CSV! Puoi aprirlo con Excel.');
+        }
+
+        // Save data to storage
+        function saveData() {
+            try {
+                localStorage.setItem('wellness_activities', JSON.stringify(activities));
+                localStorage.setItem('wellness_entries', JSON.stringify(entries));
+            } catch (error) {
+                console.error('Errore salvataggio:', error);
+                alert('Errore nel salvataggio dei dati');
+            }
+        }
+
+        // Day editor variables
+        let currentEditingDate = null;
+
+        // Open day editor
+        function openDayEditor(dateKey) {
+            currentEditingDate = dateKey;
+            const date = new Date(dateKey + 'T12:00:00');
+            const formattedDate = date.toLocaleDateString('it-IT', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            document.getElementById('dayEditorTitle').textContent = formattedDate;
+            
+            const dayEntries = entries[dateKey] || {};
+            const container = document.getElementById('dayEditorActivities');
+            
+            container.innerHTML = activities.map(activity => {
+                const value = dayEntries[activity.id] || '';
+                let inputHtml = '';
+                
+                if (activity.type === 'checkbox') {
+                    inputHtml = `<input type="checkbox" id="day-activity-${activity.id}" ${value ? 'checked' : ''}>`;
+                } else if (activity.type === 'number') {
+                    inputHtml = `<input type="number" id="day-activity-${activity.id}" placeholder="${activity.unit || ''}" value="${value}" step="0.1">`;
+                } else {
+                    inputHtml = `<textarea id="day-activity-${activity.id}" placeholder="Scrivi qui...">${value}</textarea>`;
+                }
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon">${activity.icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-name">${activity.name}</div>
+                            <div class="activity-type">${getTypeLabel(activity)}</div>
+                            <div style="margin-top: 10px;">${inputHtml}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('dayEditorModal').classList.add('active');
+        }
+
+        // Save day editor
+        function saveDayEditor() {
+            if (!currentEditingDate) return;
+            
+            entries[currentEditingDate] = {};
+            
+            activities.forEach(activity => {
+                const input = document.getElementById(`day-activity-${activity.id}`);
+                if (activity.type === 'checkbox') {
+                    entries[currentEditingDate][activity.id] = input.checked;
+                } else {
+                    entries[currentEditingDate][activity.id] = input.value;
+                }
+            });
+            
+            saveData();
+            closeDayEditor();
+            renderCalendar();
+            renderStats();
+            alert('✨ Giorno salvato con successo!');
+        }
+
+        // Close day editor
+        function closeDayEditor() {
+            document.getElementById('dayEditorModal').classList.remove('active');
+            currentEditingDate = null;
+        }
+
+        // Get today's date key
+        function getTodayKey() {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        }
+
+        // Format date for display
+        function formatDate(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('it-IT', options);
+        }
+
+        // Update current date display
+        function updateDateDisplay() {
+            document.getElementById('currentDate').textContent = formatDate(new Date());
+        }
+
+        // Render today's activities
+        function renderActivities() {
+            const container = document.getElementById('activitiesList');
+            const todayKey = getTodayKey();
+            const todayEntries = entries[todayKey] || {};
+            
+            container.innerHTML = activities.map(activity => {
+                const value = todayEntries[activity.id] || '';
+                let inputHtml = '';
+                
+                if (activity.type === 'checkbox') {
+                    inputHtml = `<input type="checkbox" id="activity-${activity.id}" ${value ? 'checked' : ''}>`;
+                } else if (activity.type === 'number') {
+                    inputHtml = `<input type="number" id="activity-${activity.id}" placeholder="${activity.unit || ''}" value="${value}" step="0.1">`;
+                } else {
+                    inputHtml = `<textarea id="activity-${activity.id}" placeholder="Scrivi qui...">${value}</textarea>`;
+                }
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon">${activity.icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-name">${activity.name}</div>
+                            <div class="activity-type">${getTypeLabel(activity)}</div>
+                            <div style="margin-top: 10px;">${inputHtml}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTypeLabel(activity) {
+            if (activity.type === 'checkbox') return 'Completato';
+            if (activity.type === 'number') return `Valore (${activity.unit || 'numero'})`;
+            return 'Testo libero';
+        }
+
+        // Save today's entries
+        function saveToday() {
+            const todayKey = getTodayKey();
+            entries[todayKey] = {};
+            
+            activities.forEach(activity => {
+                const input = document.getElementById(`activity-${activity.id}`);
+                if (activity.type === 'checkbox') {
+                    entries[todayKey][activity.id] = input.checked;
+                } else {
+                    entries[todayKey][activity.id] = input.value;
+                }
+            });
+            
+            saveData();
+            alert('✨ Giornata salvata con successo!');
+            renderCalendar();
+            renderStats();
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'calendar') renderCalendar();
+            if (tabName === 'stats') renderStats();
+            if (tabName === 'settings') renderManageActivities();
+        }
+
+        // Calendar functions
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            
+            document.getElementById('calendarMonth').textContent = 
+                currentMonth.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            
+            let html = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
+                .map(day => `<div class="calendar-day header" style="cursor: default;">${day}</div>`).join('');
+            
+            for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+                html += '<div class="calendar-day"></div>';
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasEntries = entries[dateKey] && Object.keys(entries[dateKey]).length > 0;
+                const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+                
+                let dots = '';
+                if (hasEntries) {
+                    const dayActivities = entries[dateKey];
+                    dots = '<div class="activity-dots">' + 
+                        Object.keys(dayActivities).slice(0, 3).map(actId => {
+                            const activity = activities.find(a => a.id == actId);
+                            return activity ? `<div class="activity-dot" style="background: ${activity.color}"></div>` : '';
+                        }).join('') + 
+                        '</div>';
+                }
+                
+                html += `<div class="calendar-day ${hasEntries ? 'has-entries' : ''} ${isToday ? 'today' : ''}" onclick="openDayEditor('${dateKey}')" style="cursor: pointer;">
+                    ${day}${dots}
+                </div>`;
+            }
+            
+            grid.innerHTML = html;
+        }
+
+        function changeMonth(delta) {
+            currentMonth.setMonth(currentMonth.getMonth() + delta);
+            renderCalendar();
+        }
+
+        // Stats functions
+        function renderStats() {
+            renderWeightChart();
+            renderGeneralStats();
+        }
+
+        function renderWeightChart() {
+            const canvas = document.getElementById('weightChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Get weight activity
+            const weightActivity = activities.find(a => a.type === 'number' && a.name.toLowerCase().includes('peso'));
+            if (!weightActivity) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#b8869e';
+                ctx.font = '16px -apple-system';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nessuna attività peso trovata', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            // Get weight data
+            const weightData = [];
+            const sortedDates = Object.keys(entries).sort();
+            
+            sortedDates.forEach(dateKey => {
+                const entry = entries[dateKey][weightActivity.id];
+                if (entry && entry !== '') {
+                    weightData.push({ date: dateKey, weight: parseFloat(entry) });
+                }
+            });
+            
+            if (weightData.length === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#b8869e';
+                ctx.font = '16px -apple-system';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nessun dato peso disponibile', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            // Simple line chart
+            const padding = 40;
+            const chartWidth = canvas.width - padding * 2;
+            const chartHeight = canvas.height - padding * 2;
+            
+            const minWeight = Math.min(...weightData.map(d => d.weight)) - 1;
+            const maxWeight = Math.max(...weightData.map(d => d.weight)) + 1;
+            const weightRange = maxWeight - minWeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw axes
+            ctx.strokeStyle = '#ffe4ec';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            // Draw line
+            ctx.strokeStyle = '#ffb6c1';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            weightData.forEach((point, i) => {
+                const x = padding + (i / (weightData.length - 1)) * chartWidth;
+                const y = canvas.height - padding - ((point.weight - minWeight) / weightRange) * chartHeight;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // Draw points
+            weightData.forEach((point, i) => {
+                const x = padding + (i / (weightData.length - 1)) * chartWidth;
+                const y = canvas.height - padding - ((point.weight - minWeight) / weightRange) * chartHeight;
+                
+                ctx.fillStyle = '#d4758f';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw value
+                ctx.fillStyle = '#7d5a6c';
+                ctx.font = '12px -apple-system';
+                ctx.textAlign = 'center';
+                ctx.fillText(point.weight.toFixed(1), x, y - 10);
+            });
+            
+            // Draw labels
+            ctx.fillStyle = '#b8869e';
+            ctx.font = '12px -apple-system';
+            ctx.textAlign = 'right';
+            ctx.fillText(maxWeight.toFixed(1) + ' kg', padding - 5, padding + 5);
+            ctx.fillText(minWeight.toFixed(1) + ' kg', padding - 5, canvas.height - padding + 5);
+        }
+
+        function renderGeneralStats() {
+            const container = document.getElementById('statsGrid');
+            
+            const totalDays = Object.keys(entries).length;
+            const last30Days = Object.keys(entries).filter(key => {
+                const date = new Date(key);
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                return date >= thirtyDaysAgo;
+            }).length;
+            
+            // Calculate streaks for checkbox activities
+            const checkboxActivities = activities.filter(a => a.type === 'checkbox');
+            const streaks = checkboxActivities.map(activity => {
+                let currentStreak = 0;
+                const sortedDates = Object.keys(entries).sort().reverse();
+                
+                for (const dateKey of sortedDates) {
+                    if (entries[dateKey][activity.id]) {
+                        currentStreak++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                return { activity, streak: currentStreak };
+            }).filter(s => s.streak > 0);
+            
+            const bestStreak = streaks.length > 0 ? streaks.reduce((max, s) => s.streak > max.streak ? s : max) : null;
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalDays}</div>
+                    <div class="stat-label">Giorni Totali</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${last30Days}</div>
+                    <div class="stat-label">Ultimi 30 Giorni</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${activities.length}</div>
+                    <div class="stat-label">Attività Totali</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${bestStreak ? bestStreak.streak : 0}</div>
+                    <div class="stat-label">${bestStreak ? bestStreak.activity.name : 'Serie Massima'}</div>
+                </div>
+            `;
+        }
+
+        // Activity management
+        function renderManageActivities() {
+            const container = document.getElementById('manageActivitiesList');
+            
+            if (activities.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🌸</div>
+                        <p>Nessuna attività. Aggiungi la prima!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = activities.map(activity => `
+                <div class="manage-activity-item">
+                    <div class="activity-icon">${activity.icon}</div>
+                    <div class="activity-content">
+                        <div class="activity-name">${activity.name}</div>
+                        <div class="activity-type">${getTypeLabel(activity)}</div>
+                    </div>
+                    <button class="btn btn-delete" onclick="deleteActivity(${activity.id})">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function openAddActivityModal() {
+            document.getElementById('addActivityModal').classList.add('active');
+            document.getElementById('activityType').addEventListener('change', function() {
+                document.getElementById('unitGroup').style.display = 
+                    this.value === 'number' ? 'block' : 'none';
+            });
+        }
+
+        function closeAddActivityModal() {
+            document.getElementById('addActivityModal').classList.remove('active');
+            document.getElementById('activityName').value = '';
+            document.getElementById('activityIcon').value = '';
+            document.getElementById('activityType').value = 'checkbox';
+            document.getElementById('activityUnit').value = '';
+        }
+
+        function addActivity() {
+            const name = document.getElementById('activityName').value.trim();
+            const icon = document.getElementById('activityIcon').value.trim();
+            const type = document.getElementById('activityType').value;
+            const unit = document.getElementById('activityUnit').value.trim();
+            const color = document.getElementById('activityColor').value;
+            
+            if (!name || !icon) {
+                alert('Inserisci nome e icona');
+                return;
+            }
+            
+            const newActivity = {
+                id: Date.now(),
+                name,
+                icon,
+                type,
+                color
+            };
+            
+            if (type === 'number' && unit) {
+                newActivity.unit = unit;
+            }
+            
+            activities.push(newActivity);
+            saveData();
+            
+            closeAddActivityModal();
+            renderActivities();
+            renderManageActivities();
+            alert('✨ Attività aggiunta!');
+        }
+
+        function deleteActivity(id) {
+            if (!confirm('Sei sicura di voler eliminare questa attività?')) return;
+            
+            activities = activities.filter(a => a.id !== id);
+            
+            // Remove from all entries
+            Object.keys(entries).forEach(dateKey => {
+                delete entries[dateKey][id];
+            });
+            
+            saveData();
+            renderActivities();
+            renderManageActivities();
+            alert('✨ Attività eliminata!');
+        }
+
+        // Initialize app
+        function init() {
+            // Set canvas size
+            const canvas = document.getElementById('weightChart');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 300;
+            
+            loadData();
+            updateDateDisplay();
+            renderActivities();
+            renderCalendar();
+        }
+
+        // Start app
+        init();
+    </script>
+</body>
+</html>
